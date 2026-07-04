@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>스마트 라면 타이머 - Smart Ramen Chef</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts & FontAwesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.05);
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body class="bg-amber-50 min-h-screen text-slate-800 flex flex-col justify-between">
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-red-600 to-orange-500 text-white py-4 px-6 shadow-md">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+      <div class="flex items-center gap-3">
+        <div class="bg-white text-red-600 p-2 rounded-full shadow-inner animate-bounce">
+          <i class="fa-solid fa-bowl-hot text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-black tracking-wider" id="header-title">스마트 멀티랭귀지 라면 마스터</h1>
+          <p class="text-xs text-orange-100 font-medium" id="header-subtitle">가치있는미래교육연구소 대표 김병찬 기획/개발</p>
+        </div>
+      </div>
+      <!-- Language Selector -->
+      <div class="flex items-center gap-2">
+        <label for="lang-select" class="text-sm font-bold flex items-center gap-1">
+          <i class="fa-solid fa-globe"></i>
+        </label>
+        <select id="lang-select" class="bg-white/20 text-white font-semibold border border-white/40 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-white text-sm cursor-pointer hover:bg-white/30 transition">
+          <option value="ko" class="text-slate-800" selected>🇰🇷 한국어 (Korean)</option>
+          <option value="en" class="text-slate-800">🇺🇸 English</option>
+          <option value="ja" class="text-slate-800">🇯🇵 日本語 (Japanese)</option>
+          <option value="zh" class="text-slate-800">🇨🇳 中文 (Chinese)</option>
+          <option value="es" class="text-slate-800">🇪🇸 Español (Spanish)</option>
+          <option value="de" class="text-slate-800">🇩🇪 Deutsch (German)</option>
+          <option value="vi" class="text-slate-800">🇻🇳 Tiếng Việt (Vietnamese)</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl w-full mx-auto px-4 py-6 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+    
+    <!-- Left Panel: Settings & Selector -->
+    <section class="lg:col-span-5 bg-white rounded-3xl p-6 shadow-lg border border-orange-100 flex flex-col justify-between">
+      <div class="space-y-6">
+        <div>
+          <h2 class="text-xl font-extrabold text-slate-900 flex items-center gap-2 mb-4 border-b pb-2 border-orange-100">
+            <span class="text-orange-500">1.</span> <span data-i18n="select-ramen-title">라면 종류 선택</span>
+          </h2>
+          <div class="grid grid-cols-2 gap-3" id="ramen-grid">
+            <!-- Ramen selection dynamic injections -->
+          </div>
+        </div>
+
+        <div>
+          <h2 class="text-xl font-extrabold text-slate-900 flex items-center gap-2 mb-3 border-b pb-2 border-orange-100">
+            <span class="text-orange-500">2.</span> <span data-i18n="heat-source-title">가열 기구 선택</span>
+          </h2>
+          <div class="grid grid-cols-2 gap-3">
+            <button id="heat-gas" onclick="setHeatSource('gas')" class="flex items-center justify-between p-3 border-2 border-orange-500 bg-orange-50/50 rounded-xl font-bold text-slate-800 hover:bg-orange-50 transition cursor-pointer">
+              <span class="flex items-center gap-2">
+                <i class="fa-solid fa-fire text-red-500"></i>
+                <span data-i18n="gas-stove">가스레인지</span>
+              </span>
+              <span class="text-xs text-orange-600" data-i18n="slow-boil">천천히 끓음</span>
+            </button>
+            <button id="heat-induction" onclick="setHeatSource('induction')" class="flex items-center justify-between p-3 border-2 border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition cursor-pointer">
+              <span class="flex items-center gap-2">
+                <i class="fa-solid fa-bolt text-amber-500"></i>
+                <span data-i18n="induction">인덕션</span>
+              </span>
+              <span class="text-xs text-slate-500" data-i18n="fast-boil">빠르게 끓음</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="text-xl font-extrabold text-slate-900 flex items-center gap-2 mb-3 border-b pb-2 border-orange-100">
+            <span class="text-orange-500">3.</span> <span data-i18n="toppings-title">토핑 추가</span>
+          </h2>
+          <div class="grid grid-cols-2 gap-3">
+            <button id="topping-ricecake" onclick="toggleTopping('ricecake')" class="topping-btn flex items-center gap-3 p-3 border-2 border-slate-200 rounded-xl font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
+              <span class="text-xl">⚪</span>
+              <span data-i18n="topping-ricecake">떡국떡</span>
+            </button>
+            <button id="topping-onion" onclick="toggleTopping('onion')" class="topping-btn flex items-center gap-3 p-3 border-2 border-slate-200 rounded-xl font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
+              <span class="text-xl">🌿</span>
+              <span data-i18n="topping-onion">송송 썬 파</span>
+            </button>
+            <button id="topping-cheese" onclick="toggleTopping('cheese')" class="topping-btn flex items-center gap-3 p-3 border-2 border-slate-200 rounded-xl font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
+              <span class="text-xl">🧀</span>
+              <span data-i18n="topping-cheese">슬라이스 치즈</span>
+            </button>
+            <button id="topping-egg" onclick="toggleTopping('egg')" class="topping-btn flex items-center gap-3 p-3 border-2 border-slate-200 rounded-xl font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
+              <span class="text-xl">🥚</span>
+              <span data-i18n="topping-egg">계란</span>
+            </button>
+          </div>
+
+          <!-- Egg Style Selector (Visible only when egg selected) -->
+          <div id="egg-style-container" class="hidden mt-3 p-3 bg-amber-50/50 rounded-xl border border-amber-200/50 animate-fade-in">
+            <p class="text-xs font-bold text-amber-800 mb-2" data-i18n="egg-style-title">🥚 계란 익힘 상태를 선택해주세요</p>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="egg-soft" onclick="setEggStyle('soft')" class="py-2 px-3 border-2 border-amber-500 bg-white rounded-lg text-sm font-bold text-amber-900 cursor-pointer">
+                🍳 <span data-i18n="egg-soft">반숙 (부드러움)</span>
+              </button>
+              <button id="egg-hard" onclick="setEggStyle('hard')" class="py-2 px-3 border-2 border-slate-200 bg-white rounded-lg text-sm font-bold text-slate-600 cursor-pointer">
+                🥚 <span data-i18n="egg-hard">완숙 (단단함)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Developer Info Widget -->
+      <div class="mt-6 pt-4 border-t border-slate-100 flex items-center gap-3 bg-gradient-to-r from-orange-50 to-amber-50 p-4 rounded-2xl">
+        <div class="bg-orange-100 text-orange-600 p-2.5 rounded-xl">
+          <i class="fa-solid fa-graduation-cap text-lg"></i>
+        </div>
+        <div>
+          <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider" data-i18n="planning-development">기획 및 개발자</p>
+          <p class="text-sm font-extrabold text-slate-800" data-i18n="dev-name">김병찬 대표</p>
+          <p class="text-[11px] text-slate-500" data-i18n="dev-org">가치있는미래교육연구소</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Panel: Timer & Real-time Progress -->
+    <section class="lg:col-span-7 bg-white rounded-3xl p-6 shadow-lg border border-orange-100 flex flex-col justify-between">
+      
+      <!-- Recipe Overview Area -->
+      <div class="bg-gradient-to-br from-amber-50/70 to-orange-50/30 p-5 rounded-2xl border border-orange-100/50 mb-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-black bg-red-100 text-red-600 px-2.5 py-1 rounded-full uppercase tracking-widest" id="badge-ramen-name">신라면</span>
+          <span class="text-sm font-bold text-slate-500 flex items-center gap-1">
+            <i class="fa-solid fa-droplet text-blue-500"></i>
+            <span id="recipe-water">550ml</span>
+          </span>
+        </div>
+        <h3 class="text-lg font-black text-slate-900 mb-1" id="current-ramen-name">신라면 최적 레시피</h3>
+        <p class="text-sm text-slate-600 leading-relaxed" id="current-ramen-desc">쫄깃하고 매콤한 면발의 정석! 최상의 면발 탄력을 위한 과학적인 타이밍 가이드</p>
+      </div>
+
+      <!-- Timer Core Visualizer -->
+      <div class="flex-grow flex flex-col items-center justify-center py-6">
+        <!-- Visual Wave Indicator -->
+        <div class="relative w-48 h-48 sm:w-56 sm:h-56 rounded-full bg-slate-50 border-4 border-slate-100 flex items-center justify-center shadow-inner overflow-hidden">
+          <!-- Background ripple simulated -->
+          <div id="visual-progress-bg" class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-orange-400 to-amber-300 opacity-20 transition-all duration-1000" style="height: 100%;"></div>
+          
+          <div class="z-10 text-center">
+            <p class="text-xs font-black uppercase tracking-widest text-slate-400" id="current-step-label">물 끓이기 단계</p>
+            <div class="text-5xl sm:text-6xl font-black text-slate-800 tracking-tighter my-1" id="timer-display">04:00</div>
+            <p class="text-xs font-bold text-orange-500 px-3 py-1 bg-orange-100/80 rounded-full inline-block mt-1" id="next-action-tip">끓는 물에 소스 투입</p>
+          </div>
+        </div>
+
+        <!-- Master Control Button Bar -->
+        <div class="w-full max-w-md mt-6 grid grid-cols-3 gap-2">
+          <button id="btn-start" onclick="startTimer()" class="py-3 px-4 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-extrabold rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer text-sm">
+            <i class="fa-solid fa-play"></i> <span data-i18n="btn-start">시작</span>
+          </button>
+          <button id="btn-pause" onclick="pauseTimer()" class="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-xl transition flex items-center justify-center gap-2 cursor-pointer text-sm">
+            <i class="fa-solid fa-pause"></i> <span data-i18n="btn-pause">일시정지</span>
+          </button>
+          <button id="btn-reset" onclick="resetTimer()" class="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-xl transition flex items-center justify-center gap-2 cursor-pointer text-sm">
+            <i class="fa-solid fa-rotate-left"></i> <span data-i18n="btn-reset">초기화</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Flow Timelines (Dynamic List) -->
+      <div class="mt-2 space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
+        <h4 class="text-xs font-extrabold text-slate-400 uppercase tracking-widest" data-i18n="cooking-process">조리 과정 현황</h4>
+        <div id="step-timeline-list" class="space-y-1.5">
+          <!-- Dyn list -->
+        </div>
+      </div>
+
+      <!-- Action-driven Next Step Override Button (ALWAYS VISIBLE DURING LIVE SESSIONS) -->
+      <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
+        <div class="flex-grow">
+          <div class="flex justify-between items-center text-xs font-bold text-slate-400 mb-1">
+            <span data-i18n="total-progress">전체 요리 진척도</span>
+            <span id="progress-percent">0%</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+            <div id="overall-progress-bar" class="bg-gradient-to-r from-red-500 to-orange-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+        <!-- Manual Next Step Controller -->
+        <button id="btn-next-step" onclick="skipToNextStep()" class="py-3 px-5 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-900 hover:to-black text-white text-sm font-black rounded-xl shadow-md transition-all flex items-center gap-2 shrink-0 active:scale-95 cursor-pointer">
+          <span data-i18n="btn-next-step">다음 단계 넘어가기</span> <i class="fa-solid fa-forward-step"></i>
+        </button>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Audio Visual Indicator Modal or TTS Toast -->
+  <div id="tts-indicator" class="fixed bottom-6 right-6 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-800 opacity-0 transform translate-y-4 pointer-events-none transition-all duration-300 z-50">
+    <span class="flex h-3 w-3 relative">
+      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+      <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+    </span>
+    <span class="text-xs font-bold flex items-center gap-2">
+      <i class="fa-solid fa-volume-high text-green-400"></i>
+      <span id="tts-text-indicator">안내를 낭독 중입니다...</span>
+    </span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-400 text-center py-4 text-xs border-t border-slate-800">
+    <p class="mb-1">© 2026 Smart Ramen Chef. All Rights Reserved.</p>
+    <p>개발자: <span class="text-slate-200 font-bold">가치있는미래교육연구소 대표 김병찬</span> | 최적 조리 알고리즘 탑재</p>
+  </footer>
+
+  <script>
+    // Translation dictionary with full localization logic
+    const translations = {
+      ko: {
+        "header-title": "스마트 멀티랭귀지 라면 마스터",
+        "header-subtitle": "가치있는미래교육연구소 대표 김병찬 기획/개발",
+        "select-ramen-title": "라면 종류 선택",
+        "heat-source-title": "가열 기구 선택",
+        "gas-stove": "가스레인지",
+        "slow-boil": "천천히 끓음 (권장)",
+        "induction": "인덕션",
+        "fast-boil": "빠르게 끓음",
+        "toppings-title": "토핑 추가",
+        "topping-ricecake": "떡국떡",
+        "topping-onion": "송송 썬 파",
+        "topping-cheese": "슬라이스 치즈",
+        "topping-egg": "계란",
+        "egg-style-title": "🍳 계란 익힘 상태를 선택해주세요",
+        "egg-soft": "반숙 (부드러움)",
+        "egg-hard": "완숙 (단단함)",
+        "planning-development": "기획 및 개발자",
+        "dev-name": "김병찬 대표",
+        "dev-org": "가치있는미래교육연구소",
+        "cooking-process": "조리 과정 현황",
+        "total-progress": "전체 요리 진척도",
+        "btn-next-step": "다음 단계 넘어가기",
+        "btn-start": "시작",
+        "btn-pause": "일시정지",
+        "btn-reset": "초기화",
+        "tts-announcement": "음성 안내 중...",
+        
+        // Dynamic Recipe Info
+        "shin-ramen": "신라면",
+        "jin-ramen": "진라면",
+        "neoguri": "너구리",
+        "buldak": "불닭볶음면",
+        "shin-desc": "한국의 대표 매운 라면! 쫄깃한 면발과 최적의 조화",
+        "jin-desc": "진한 국물의 표준! 순한맛/매운맛 모두 완벽 적응",
+        "neoguri-desc": "통통한 면발과 국산 다시마가 만드는 깊은 해물 맛",
+        "buldak-desc": "물 버리는 타이밍이 생명! 화끈하고 중독적인 비빔면",
+        
+        // Cooking Action Keys
+        "action-boil": "물 끓이기",
+        "action-boil-desc": "가열 기구에 물을 올리고 강불로 끓여줍니다.",
+        "action-soup": "스프 및 건더기 투입",
+        "action-soup-desc": "물이 끓으면 신속하게 건더기와 분말스프를 함께 투입합니다.",
+        "action-noodle": "면 및 떡 투입",
+        "action-noodle-desc": "면과 떡국떡을 넣고 면발이 부드러워지도록 잘 섞습니다.",
+        "action-egg-soft": "계란 반숙 투입",
+        "action-egg-soft-desc": "반숙을 위해 계란을 깨트려 부드럽게 넣어줍니다.",
+        "action-egg-hard": "계란 완숙 투입",
+        "action-egg-hard-desc": "완숙을 위해 계란을 조기 투입하고 잘 익혀줍니다.",
+        "action-onion": "대파 투입",
+        "action-onion-desc": "풍미와 개운한 국물 맛을 위해 대파를 넣습니다.",
+        "action-finish": "치즈 투입 및 마무리",
+        "action-finish-desc": "가열을 종료하고 슬라이스 치즈를 올려 고소함을 극대화합니다.",
+        "action-serve": "맛있는 식사 준비 완료!",
+        "action-serve-desc": "가장 맛있는 순간입니다. 그릇에 담아 즐거운 식사를 하세요!",
+
+        // TTS Sentences
+        "voice-ready": "조리 준비가 되었습니다. 시작 버튼을 누르면 물 끓이기가 시작됩니다.",
+        "voice-step-start": " 단계를 시작합니다. 타이머를 진행해주세요.",
+        "voice-boil-finished": "물이 팔팔 끓었습니다! 다음 단계를 누른 후 다음 지침에 따라 주세요.",
+        "voice-next-guide": "단계로 이동했습니다. 시작 버튼을 눌러주세요.",
+        "voice-finished": "모든 요리 과정이 끝났습니다! 맛있게 드세요!"
+      },
+      en: {
+        "header-title": "Smart Multi-Language Ramen Master",
+        "header-subtitle": "Planned/Developed by CEO Kim Byung-chan, Valuable Future Education Research Institute",
+        "select-ramen-title": "Select Ramen Type",
+        "heat-source-title": "Heat Source Option",
+        "gas-stove": "Gas Stove",
+        "slow-boil": "Boils slowly (Recommended)",
+        "induction": "Induction",
+        "fast-boil": "Boils quickly",
+        "toppings-title": "Toppings Selection",
+        "topping-ricecake": "Rice Cake",
+        "topping-onion": "Chopped Green Onion",
+        "topping-cheese": "Sliced Cheese",
+        "topping-egg": "Egg",
+        "egg-style-title": "🍳 Choose Egg Doneness",
+        "egg-soft": "Soft Boiled",
+        "egg-hard": "Hard Boiled",
+        "planning-development": "Planner & Developer",
+        "dev-name": "CEO Kim Byung-chan",
+        "dev-org": "Valuable Future Education Institute",
+        "cooking-process": "Cooking Progress Timeline",
+        "total-progress": "Total Progress Bar",
+        "btn-next-step": "Next Step",
+        "btn-start": "Start",
+        "btn-pause": "Pause",
+        "btn-reset": "Reset",
+        "tts-announcement": "Speaking guide...",
+        
+        "shin-ramen": "Shin Ramyun",
+        "jin-ramen": "Jin Ramyun",
+        "neoguri": "Neoguri",
+        "buldak": "Buldak Noodles",
+        "shin-desc": "The signature spicy taste of Korea! Perfect noodle bounce.",
+        "jin-desc": "The benchmark of deep broth! Satisfyingly rich.",
+        "neoguri-desc": "Thick noodles with deep sea kelp taste.",
+        "buldak-desc": "Drain timing is key! Extremely hot stir-fried noodles.",
+
+        "action-boil": "Boil Water",
+        "action-boil-desc": "Put water on the stove and heat it on high.",
+        "action-soup": "Add Flakes & Soup Base",
+        "action-soup-desc": "Once boiling, rapidly empty the soup packages into the water.",
+        "action-noodle": "Add Noodles & Rice Cakes",
+        "action-noodle-desc": "Add noodles and rice cakes. Keep them fully submerged.",
+        "action-egg-soft": "Add Egg (Soft)",
+        "action-egg-soft-desc": "Gently crack an egg in for a perfect soft yolk.",
+        "action-egg-hard": "Add Egg (Hard)",
+        "action-egg-hard-desc": "Add egg early to cook it thoroughly.",
+        "action-onion": "Add Green Onion",
+        "action-onion-desc": "Add chopped green onion for fresh fragrance.",
+        "action-finish": "Add Cheese & Finish",
+        "action-finish-desc": "Turn off heat, add sliced cheese to let it melt nicely.",
+        "action-serve": "Your Ramen is Ready!",
+        "action-serve-desc": "Transfer to your favorite bowl and enjoy delicious meal!",
+
+        "voice-ready": "Preparation complete. Click Start to begin boiling water.",
+        "voice-step-start": " step started. Please resume the timer.",
+        "voice-boil-finished": "Water is boiling hot! Go to the next step, then start the segment.",
+        "voice-next-guide": "Moved to next step. Please press start button.",
+        "voice-finished": "Cooking is complete! Bon appétit!"
+      },
+      ja: {
+        "header-title": "スマート多言語ラーメンマスター",
+        "header-subtitle": "企画/開発：価値ある未来教育研究所 代表 キム・ビョンチャン",
+        "select-ramen-title": "ラーメンの種類選択",
+        "heat-source-title": "加熱器具の選択",
+        "gas-stove": "ガスコンロ",
+        "slow-boil": "ゆっくり沸騰",
+        "induction": "IHクッキング",
+        "fast-boil": "急速沸騰",
+        "toppings-title": "トッピング追加",
+        "topping-ricecake": "トック（韓国餅）",
+        "topping-onion": "刻みネギ",
+        "topping-cheese": "スライスチーズ",
+        "topping-egg": "卵",
+        "egg-style-title": "🍳 卵の固さを選んでください",
+        "egg-soft": "半熟 (柔らか)",
+        "egg-hard": "固茹で (しっかり)",
+        "planning-development": "企画および開発者",
+        "dev-name": "代表 キム・ビョンチャン",
+        "dev-org": "価値ある未来教育研究所",
+        "cooking-process": "調理プロセスの状況",
+        "total-progress": "全体の調理進捗",
+        "btn-next-step": "次の段階へ進む",
+        "btn-start": "開始",
+        "btn-pause": "一時停止",
+        "btn-reset": "リセット",
+        "tts-announcement": "音声案内中...",
+
+        "shin-ramen": "辛ラーメン",
+        "jin-ramen": "ジンラーメン",
+        "neoguri": "ノグリラーメン",
+        "buldak": "ブルダック炒め麺",
+        "shin-desc": "韓国の代表的な辛いラーメン！コシのある麺との相性抜群",
+        "jin-desc": "濃厚なスープの決定版！まろやか/スパイシー両対応",
+        "neoguri-desc": "太麺と国産昆布が生み出す、深い海の恵みの味わい",
+        "buldak-desc": "お湯を切るタイミングが命！激辛でやみつきの炒め麺",
+
+        "action-boil": "お湯を沸かす",
+        "action-boil-desc": "加熱器具にお湯をのせ、強火で沸騰させます。",
+        "action-soup": "スープと具材の投入",
+        "action-soup-desc": "お湯が沸いたら、素早くスープパウダーと具材を入れます。",
+        "action-noodle": "麺とお餅の投入",
+        "action-noodle-desc": "麺とトックを入れて、麺が柔らかくなるようにほぐします。",
+        "action-egg-soft": "半熟卵の投入",
+        "action-egg-soft-desc": "半熟に仕上げるために、卵をそっと落とします。",
+        "action-egg-hard": "固茹で卵の投入",
+        "action-egg-hard-desc": "しっかり火を通すために、早めに卵を投入します。",
+        "action-onion": "ネギの投入",
+        "action-onion-desc": "ネギを加えて、香りと爽やかな風味を引き立てます。",
+        "action-finish": "チーズ投入と仕上げ",
+        "action-finish-desc": "火を止め、スライスチーズをのせてコクを極大化させます。",
+        "action-serve": "美味しいラーメンの完成！",
+        "action-serve-desc": "一番美味しい瞬間です。器に盛り付けてお召し上がりください！",
+
+        "voice-ready": "調理の準備ができました。スタートボタンを押すと、お湯が沸き始めます。",
+        "voice-step-start": " のステップを開始します。タイマーを進めてください。",
+        "voice-boil-finished": "お湯が沸騰しました！次のステップに進み、指示に従ってください。",
+        "voice-next-guide": "次のステップに進みました。開始ボタンを押してください。",
+        "voice-finished": "すべての調理が完了しました！美味しくお召し上がりください！"
+      },
+      zh: {
+        "header-title": "智能多语言拉面大师",
+        "header-subtitle": "策划/开发：有价值的未来教育研究所 代表 金炳灿",
+        "select-ramen-title": "选择拉面种类",
+        "heat-source-title": "选择加热设备",
+        "gas-stove": "燃气灶",
+        "slow-boil": "加热缓慢",
+        "induction": "电磁炉",
+        "fast-boil": "加热迅速",
+        "toppings-title": "添加配料",
+        "topping-ricecake": "年糕片",
+        "topping-onion": "葱花",
+        "topping-cheese": "芝士片",
+        "topping-egg": "鸡蛋",
+        "egg-style-title": "🍳 请选择鸡蛋熟度",
+        "egg-soft": "溏心蛋 (半熟)",
+        "egg-hard": "全熟蛋 (完熟)",
+        "planning-development": "策划及开发者",
+        "dev-name": "代表 金炳灿",
+        "dev-org": "有价值的未来教育研究所",
+        "cooking-process": "烹饪步骤状态",
+        "total-progress": "整体烹饪进度",
+        "btn-next-step": "跳到下一步骤",
+        "btn-start": "开始",
+        "btn-pause": "暂停",
+        "btn-reset": "重置",
+        "tts-announcement": "正在语音播报...",
+
+        "shin-ramen": "辛拉面",
+        "jin-ramen": "真拉面",
+        "neoguri": "小浣熊拉面",
+        "buldak": "火鸡面",
+        "shin-desc": "韩国标志性辣味拉面！面条劲道，黄金比例搭配",
+        "jin-desc": "浓汤标准的经典！辣与不辣的完美结合",
+        "neoguri-desc": "粗面条与海带熬制出的浓郁海鲜汤头",
+        "buldak-desc": "沥干水分的时机是关键！火辣过瘾的拌面",
+
+        "action-boil": "烧开水",
+        "action-boil-desc": "将水放在加热器上，开大火烧开。",
+        "action-soup": "加入调料包与配料",
+        "action-soup-desc": "水开后，迅速放入干料包和调味粉包。",
+        "action-noodle": "加入面条与年糕",
+        "action-noodle-desc": "放入面条和年糕，搅拌均匀使其变软。",
+        "action-egg-soft": "加入溏心蛋",
+        "action-egg-soft-desc": "轻轻打入鸡蛋，保持蛋黄软嫩。",
+        "action-egg-hard": "加入全熟蛋",
+        "action-egg-hard-desc": "尽早打入鸡蛋，使其充分煮熟。",
+        "action-onion": "加入葱花",
+        "action-onion-desc": "撒入香葱，提升汤头的清香度。",
+        "action-finish": "加入芝士与收尾",
+        "action-finish-desc": "关火，放上一片芝士，使其慢慢融化提香。",
+        "action-serve": "美味拉面制作完成！",
+        "action-serve-desc": "最佳品尝时刻，盛入碗中即可享用！",
+
+        "voice-ready": "烹饪准备就绪。点击开始按钮开始烧水。",
+        "voice-step-start": " 步骤已开始。请启动计时器。",
+        "voice-boil-finished": "水已经烧开了！请跳到下一步并点击开始继续。",
+        "voice-next-guide": "已移至下一步。请点击开始按钮。",
+        "voice-finished": "所有烹饪步骤都已完成！祝您用餐愉快！"
+      },
+      es: {
+        "header-title": "Smart Ramen Master Multilingüe",
+        "header-subtitle": "Diseñado/Desarrollado por Kim Byung-chan, Director del Inst. de Educación Futura de Valor",
+        "select-ramen-title": "Seleccione el Tipo de Ramen",
+        "heat-source-title": "Fuente de Calor",
+        "gas-stove": "Estufa de Gas",
+        "slow-boil": "Hervir lento (Recomendado)",
+        "induction": "Inducción",
+        "fast-boil": "Hervir rápido",
+        "toppings-title": "Agregar Ingredientes",
+        "topping-ricecake": "Pastel de Arroz",
+        "topping-onion": "Cebollín Picado",
+        "topping-cheese": "Queso Laminado",
+        "topping-egg": "Huevo",
+        "egg-style-title": "🍳 Elija la Cocción del Huevo",
+        "egg-soft": "Huevo Pasado por Agua (Suave)",
+        "egg-hard": "Huevo Duro (Bien Cocido)",
+        "planning-development": "Planificador y Desarrollador",
+        "dev-name": "Director Kim Byung-chan",
+        "dev-org": "Instituto de Educación Futura de Valor",
+        "cooking-process": "Progreso de Cocción",
+        "total-progress": "Progreso Total",
+        "btn-next-step": "Siguiente Paso",
+        "btn-start": "Iniciar",
+        "btn-pause": "Pausar",
+        "btn-reset": "Reiniciar",
+        "tts-announcement": "Anunciando voz...",
+
+        "shin-ramen": "Shin Ramyun",
+        "jin-ramen": "Jin Ramyun",
+        "neoguri": "Neoguri",
+        "buldak": "Fideos Buldak",
+        "shin-desc": "¡El sabor picante clásico de Corea! Textura de fideos elástica.",
+        "jin-desc": "¡El caldo rico definitivo! Excelente balance de especias.",
+        "neoguri-desc": "Fideos gruesos combinados con un profundo caldo de algas marinas.",
+        "buldak-desc": "¡El momento de drenar es clave! Fideos salteados súper picantes.",
+
+        "action-boil": "Hervir Agua",
+        "action-boil-desc": "Ponga el agua en la fuente de calor a fuego alto.",
+        "action-soup": "Añadir Sopa y Verduras",
+        "action-soup-desc": "Cuando el agua hierva, agregue la base de sopa y los copos deshidratados.",
+        "action-noodle": "Añadir Fideos y Pastel de Arroz",
+        "action-noodle-desc": "Añada los fideos y pasteles de arroz. Manténgalos sumergidos.",
+        "action-egg-soft": "Añadir Huevo Suave",
+        "action-egg-soft-desc": "Añada un huevo con cuidado para una yema líquida deliciosa.",
+        "action-egg-hard": "Añadir Huevo Duro",
+        "action-egg-hard-desc": "Agregue el huevo temprano para que se cocine por completo.",
+        "action-onion": "Añadir Cebollín",
+        "action-onion-desc": "Añada el cebollín picado para darle frescura.",
+        "action-finish": "Derretir Queso y Finalizar",
+        "action-finish-desc": "Apague el fuego, agregue la rebanada de queso para que se derrita.",
+        "action-serve": "¡Su Ramen está Listo!",
+        "action-serve-desc": "¡Es el mejor momento! Sírvalo en un tazón y disfrute.",
+
+        "voice-ready": "Preparación lista. Presione Iniciar para comenzar a hervir agua.",
+        "voice-step-start": " paso iniciado. Por favor continúe el temporizador.",
+        "voice-boil-finished": "¡El agua está hirviendo! Vaya al siguiente paso y presione iniciar.",
+        "voice-next-guide": "Movido al siguiente paso. Presione el botón iniciar.",
+        "voice-finished": "¡La cocción ha finalizado! ¡Buen provecho!"
+      },
+      de: {
+        "header-title": "Smarter Ramen-Meister (Mehrsprachig)",
+        "header-subtitle": "Geplant/Entwickelt von CEO Kim Byung-chan, Wertvolles Zukunfts-Bildungsinstitut",
+        "select-ramen-title": "Ramen-Sorte wählen",
+        "heat-source-title": "Wärmequelle wählen",
+        "gas-stove": "Gasherd",
+        "slow-boil": "Langsam kochen",
+        "induction": "Induktion",
+        "fast-boil": "Schnell kochen",
+        "toppings-title": "Zutaten hinzufügen",
+        "topping-ricecake": "Reiskuchen",
+        "topping-onion": "Frühlingszwiebeln",
+        "topping-cheese": "Scheibenkäse",
+        "topping-egg": "Ei",
+        "egg-style-title": "🍳 Wählen Sie den Eigelb-Zustand",
+        "egg-soft": "Weichgekocht",
+        "egg-hard": "Hartgekocht",
+        "planning-development": "Entwickler & Planer",
+        "dev-name": "CEO Kim Byung-chan",
+        "dev-org": "Wertvolles Zukunfts-Bildungsinstitut",
+        "cooking-process": "Kochprozess-Status",
+        "total-progress": "Gesamtfortschritt",
+        "btn-next-step": "Nächster Schritt",
+        "btn-start": "Start",
+        "btn-pause": "Pause",
+        "btn-reset": "Zurücksetzen",
+        "tts-announcement": "Sprachausgabe...",
+
+        "shin-ramen": "Shin Ramyun",
+        "jin-ramen": "Jin Ramyun",
+        "neoguri": "Neoguri",
+        "buldak": "Buldak Nudeln",
+        "shin-desc": "Koreas scharfe Premium-Ramen! Unvergleichliche Elastizität.",
+        "jin-desc": "Der Standard für tiefe Brühe! Optimaler würziger Geschmack.",
+        "neoguri-desc": "Dicke Nudeln gepaart mit dem Geschmack von Algen-Dashi.",
+        "buldak-desc": "Das Abgießen ist entscheidend! Extrem scharf und cremig.",
+
+        "action-boil": "Wasser kochen",
+        "action-boil-desc": "Bringen Sie das Wasser auf der gewählten Hitzequelle zum Kochen.",
+        "action-soup": "Suppenpulver hinzufügen",
+        "action-soup-desc": "Sobald das Wasser kocht, die Gewürze und Trockenzutaten einrühren.",
+        "action-noodle": "Nudeln & Reiskuchen hinein",
+        "action-noodle-desc": "Nudeln und Reiskuchen hinzufügen. Gut untertauchen.",
+        "action-egg-soft": "Weiches Ei hinzufügen",
+        "action-egg-soft-desc": "Ein Ei vorsichtig hineinschlagen für flüssiges Eigelb.",
+        "action-egg-hard": "Hartes Ei hinzufügen",
+        "action-egg-hard-desc": "Das Ei frühzeitig hinzugeben, damit es ganz fest wird.",
+        "action-onion": "Frühlingszwiebeln hinzufügen",
+        "action-onion-desc": "Frische Frühlingszwiebeln für das feine Aroma dazugeben.",
+        "action-finish": "Käse schmelzen & Finish",
+        "action-finish-desc": "Hitze abstellen, Käsescheibe auf die heißen Nudeln legen.",
+        "action-serve": "Ihre Ramen sind servierbereit!",
+        "action-serve-desc": "In eine Schale füllen und die Mahlzeit genießen!",
+
+        "voice-ready": "Vorbereitung abgeschlossen. Drücken Sie Start, um das Wasser zu kochen.",
+        "voice-step-start": " Schritt gestartet. Bitte setzen Sie den Timer fort.",
+        "voice-boil-finished": "Das Wasser kocht kräftig! Gehen Sie zum nächsten Schritt.",
+        "voice-next-guide": "Zum nächsten Schritt gewechselt. Bitte Start drücken.",
+        "voice-finished": "Das Kochen ist fertig! Guten Appetit!"
+      },
+      vi: {
+        "header-title": "Trợ Lý Nấu Mì Thông Minh Đa Ngôn Ngữ",
+        "header-subtitle": "Kế hoạch & Phát triển bởi CEO Kim Byung-chan, Viện Nghiên cứu Giáo dục Tương lai Giá trị",
+        "select-ramen-title": "Chọn Loại Mì Ramen",
+        "heat-source-title": "Lựa Chọn Thiết Bị Đun",
+        "gas-stove": "Bếp Gas",
+        "slow-boil": "Sôi chậm (Khuyên dùng)",
+        "induction": "Bếp Từ",
+        "fast-boil": "Sôi nhanh",
+        "toppings-title": "Thêm Topping",
+        "topping-ricecake": "Bánh Gạo Tok",
+        "topping-onion": "Hành Lá Thái Nhỏ",
+        "topping-cheese": "Phô Mai Lát",
+        "topping-egg": "Trứng",
+        "egg-style-title": "🍳 Chọn Độ Chín Của Trứng",
+        "egg-soft": "Trứng Lòng Đào (Mềm)",
+        "egg-hard": "Trứng Chín Kỹ (Cứng)",
+        "planning-development": "Người phát triển",
+        "dev-name": "Đại diện Kim Byung-chan",
+        "dev-org": "Viện Nghiên cứu Giáo dục Tương lai Giá trị",
+        "cooking-process": "Tiến Trình Nấu Ăn",
+        "total-progress": "Tiến Độ Tổng Thể",
+        "btn-next-step": "Bước Tiếp Theo",
+        "btn-start": "Bắt Đầu",
+        "btn-pause": "Tạm Dừng",
+        "btn-reset": "Thiết Lập Lại",
+        "tts-announcement": "Đang phát giọng nói...",
+
+        "shin-ramen": "Mì Shin Ramyun",
+        "jin-ramen": "Mì Jin Ramyun",
+        "neoguri": "Mì Neoguri",
+        "buldak": "Mì Cay Buldak",
+        "shin-desc": "Hương vị cay nồng đặc trưng Hàn Quốc! Sợi mì dai giòn hoàn hảo.",
+        "jin-desc": "Hương vị nước dùng đậm đà quốc dân! Thơm ngon khó cưỡng.",
+        "neoguri-desc": "Sợi mì dày hòa quyện cùng hương vị tảo biển tươi mát sâu sắc.",
+        "buldak-desc": "Thời gian chắt nước là cốt lõi! Mì xào siêu cay gây nghiện cực mạnh.",
+
+        "action-boil": "Đun Sôi Nước",
+        "action-boil-desc": "Đặt nồi nước lên bếp và đun ở lửa lớn.",
+        "action-soup": "Thêm Gói Súp & Rau Khô",
+        "action-soup-desc": "Khi nước sôi, nhanh chóng cho gói súp và rau sấy vào.",
+        "action-noodle": "Thêm Mì & Bánh Gạo",
+        "action-noodle-desc": "Cho vắt mì và bánh gạo vào. Đảm bảo tất cả được ngập nước.",
+        "action-egg-soft": "Thêm Trứng Lòng Đào",
+        "action-egg-soft-desc": "Đập trứng nhẹ nhàng vào nồi để lòng đỏ giữ được độ mềm ẩm.",
+        "action-egg-hard": "Thêm Trứng Chín Kỹ",
+        "action-egg-hard-desc": "Cho trứng vào sớm để trứng chín kỹ hoàn toàn.",
+        "action-onion": "Thêm Hành Lá",
+        "action-onion-desc": "Thêm hành lá cắt nhỏ giúp nước mì thơm thơm tươi mát.",
+        "action-finish": "Thêm Phô Mai & Hoàn Thành",
+        "action-finish-desc": "Tắt bếp, đặt lát phô mai lên trên để chảy ra béo ngậy.",
+        "action-serve": "Mì Ramen Đã Sẵn Sàng!",
+        "action-serve-desc": "Thời điểm thưởng thức ngon nhất. Múc ra bát và dùng bữa thôi nào!",
+
+        "voice-ready": "Chuẩn bị hoàn tất. Nhấn Bắt đầu để đun nước.",
+        "voice-step-start": " bước đã bắt đầu. Vui lòng tiếp tục chạy bộ đếm thời gian.",
+        "voice-boil-finished": "Nước đã sôi sùng sục rồi! Hãy chuyển sang bước tiếp theo và nhấn bắt đầu.",
+        "voice-next-guide": "Đã chuyển sang bước tiếp theo. Vui lòng nhấn nút bắt đầu.",
+        "voice-finished": "Nấu ăn đã hoàn tất! Chúc bạn ăn ngon miệng!"
+      }
+    };
+
+    // Ramen Base Data Catalog
+    const ramenDatabase = {
+      shin: {
+        id: "shin",
+        nameKey: "shin-ramen",
+        descKey: "shin-desc",
+        water: 550,
+        cookTime: 270, // 4m 30s
+        color: "from-red-600 to-red-800"
+      },
+      jin: {
+        id: "jin",
+        nameKey: "jin-ramen",
+        descKey: "jin-desc",
+        water: 500,
+        cookTime: 240, // 4m
+        color: "from-blue-600 to-amber-500"
+      },
+      neoguri: {
+        id: "neoguri",
+        nameKey: "neoguri-desc",
+        water: 550,
+        cookTime: 300, // 5m
+        color: "from-emerald-600 to-amber-700"
+      },
+      buldak: {
+        id: "buldak",
+        nameKey: "buldak",
+        descKey: "buldak-desc",
+        water: 600, // Boiling water then drain
+        cookTime: 300, // 5m
+        color: "from-slate-900 to-red-600"
+      }
+    };
+
+    // System States
+    let currentLang = 'ko';
+    let selectedRamen = ramenDatabase.shin;
+    let selectedHeatSource = 'gas'; // 'gas' or 'induction'
+    let selectedToppings = {
+      ricecake: false,
+      onion: false,
+      cheese: false,
+      egg: false
+    };
+    let eggStyle = 'soft'; // 'soft' or 'hard'
+
+    // Timer engine variables
+    let timelineSteps = [];
+    let currentStepIdx = 0;
+    let timerRemaining = 0; // in seconds
+    let timerInterval = null;
+    let isRunning = false;
+    let totalTimelineDuration = 0;
+
+    // Initialization
+    window.onload = function() {
+      renderRamenSelections();
+      changeLanguage(currentLang);
+      buildTimeline();
+      
+      // Hook language select dropdown
+      document.getElementById('lang-select').addEventListener('change', (e) => {
+        changeLanguage(e.target.value);
+      });
+    };
+
+    // Render Left Panel Ramen Grid
+    function renderRamenSelections() {
+      const grid = document.getElementById('ramen-grid');
+      grid.innerHTML = '';
+      
+      Object.values(ramenDatabase).forEach(ramen => {
+        const btn = document.createElement('button');
+        btn.id = `ramen-btn-${ramen.id}`;
+        btn.onclick = () => selectRamen(ramen.id);
+        btn.className = `p-4 border-2 rounded-2xl flex flex-col items-start gap-1 transition-all text-left cursor-pointer hover:border-orange-400 ${
+          ramen.id === selectedRamen.id ? 'border-orange-500 bg-orange-50/30 ring-2 ring-orange-500/10' : 'border-slate-200 bg-white'
+        }`;
+        
+        btn.innerHTML = `
+          <span class="text-xs font-extrabold px-2 py-0.5 rounded bg-slate-100 text-slate-700" id="ramen-badge-${ramen.id}"></span>
+          <span class="text-sm font-black text-slate-900 mt-1" id="ramen-name-${ramen.id}"></span>
+          <span class="text-[10px] text-slate-500 line-clamp-2 leading-tight" id="ramen-desc-${ramen.id}"></span>
+        `;
+        grid.appendChild(btn);
+      });
+      translateDynamicRamenLabels();
+    }
+
+    // Select Ramen Handler
+    function selectRamen(ramenId) {
+      selectedRamen = ramenDatabase[ramenId];
+      
+      // Update UI active styling
+      Object.keys(ramenDatabase).forEach(id => {
+        const el = document.getElementById(`ramen-btn-${id}`);
+        if (id === ramenId) {
+          el.classList.add('border-orange-500', 'bg-orange-50/30', 'ring-2', 'ring-orange-500/10');
+          el.classList.remove('border-slate-200', 'bg-white');
+        } else {
+          el.classList.remove('border-orange-500', 'bg-orange-50/30', 'ring-2', 'ring-orange-500/10');
+          el.classList.add('border-slate-200', 'bg-white');
+        }
+      });
+
+      // Update Info card
+      updateRecipeCard();
+      resetTimer();
+    }
+
+    // Update Recipe Overview Area
+    function updateRecipeCard() {
+      const dbRamen = selectedRamen;
+      const rName = t(dbRamen.id + "-ramen") || t(dbRamen.nameKey);
+      const rDesc = t(dbRamen.descKey);
+      
+      document.getElementById('badge-ramen-name').innerText = rName;
+      document.getElementById('current-ramen-name').innerText = `${rName} ${currentLang === 'ko' ? '최적 레시피' : 'Optimal Recipe'}`;
+      document.getElementById('current-ramen-desc').innerText = rDesc;
+      document.getElementById('recipe-water').innerText = `${dbRamen.water}ml`;
+    }
+
+    // Heat Source Select Handler
+    function setHeatSource(type) {
+      selectedHeatSource = type;
+      const gasBtn = document.getElementById('heat-gas');
+      const indBtn = document.getElementById('heat-induction');
+      
+      if (type === 'gas') {
+        gasBtn.className = "flex items-center justify-between p-3 border-2 border-orange-500 bg-orange-50/50 rounded-xl font-bold text-slate-800 hover:bg-orange-50 transition cursor-pointer";
+        indBtn.className = "flex items-center justify-between p-3 border-2 border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition cursor-pointer";
+      } else {
+        gasBtn.className = "flex items-center justify-between p-3 border-2 border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition cursor-pointer";
+        indBtn.className = "flex items-center justify-between p-3 border-2 border-orange-500 bg-orange-50/50 rounded-xl font-bold text-slate-800 hover:bg-orange-50 transition cursor-pointer";
+      }
+      resetTimer();
+    }
+
+    // Toggle Topping Active States
+    function toggleTopping(toppingKey) {
+      selectedToppings[toppingKey] = !selectedToppings[toppingKey];
+      const el = document.getElementById(`topping-${toppingKey}`);
+      
+      if (selectedToppings[toppingKey]) {
+        el.classList.add('border-orange-500', 'bg-orange-50/30', 'text-orange-950');
+        el.classList.remove('border-slate-200', 'text-slate-700');
+      } else {
+        el.classList.remove('border-orange-500', 'bg-orange-50/30', 'text-orange-950');
+        el.classList.add('border-slate-200', 'text-slate-700');
+      }
+
+      // Egg Extra Handling
+      if (toppingKey === 'egg') {
+        const eggContainer = document.getElementById('egg-style-container');
+        if (selectedToppings.egg) {
+          eggContainer.classList.remove('hidden');
+        } else {
+          eggContainer.classList.add('hidden');
+        }
+      }
+      resetTimer();
+    }
+
+    // Egg Style Setter
+    function setEggStyle(style) {
+      eggStyle = style;
+      const softBtn = document.getElementById('egg-soft');
+      const hardBtn = document.getElementById('egg-hard');
+      
+      if (style === 'soft') {
+        softBtn.className = "py-2 px-3 border-2 border-amber-500 bg-white rounded-lg text-sm font-bold text-amber-900 cursor-pointer";
+        hardBtn.className = "py-2 px-3 border-2 border-slate-200 bg-white rounded-lg text-sm font-bold text-slate-600 cursor-pointer";
+      } else {
+        softBtn.className = "py-2 px-3 border-2 border-slate-200 bg-white rounded-lg text-sm font-bold text-slate-600 cursor-pointer";
+        hardBtn.className = "py-2 px-3 border-2 border-amber-500 bg-white rounded-lg text-sm font-bold text-amber-900 cursor-pointer";
+      }
+      resetTimer();
+    }
+
+    // DYNAMIC TIMELINE GENERATION ENGINE
+    // Splits cooking timeline precisely into manageable segments
+    function buildTimeline() {
+      timelineSteps = [];
+      
+      // Step 1: Boiling Water Step
+      // Gas stove takes roughly 240s, induction takes roughly 150s for standard water
+      const boilDuration = selectedHeatSource === 'gas' ? 240 : 150;
+      timelineSteps.push({
+        id: "boil",
+        actionKey: "action-boil",
+        descKey: "action-boil-desc",
+        duration: boilDuration,
+        speakBefore: true
+      });
+
+      // Step 2: Soup & Flakes Prep (Brief 15s to transition)
+      timelineSteps.push({
+        id: "soup",
+        actionKey: "action-soup",
+        descKey: "action-soup-desc",
+        duration: 15,
+        speakBefore: true
+      });
+
+      // Cooking Noodle Phase Configuration
+      const totalNoodleTime = selectedRamen.cookTime; // e.g. 270s for Shin
+      
+      // We will place soft toppings and hard toppings intelligently based on cooking progress.
+      // Rice cakes need to cook the longest (with noodles, so from start).
+      // Eggs: Soft-boiled egg cooks for 90s, Hard-boiled for 180s.
+      // Green onions cook for the last 60s.
+      // Cheese cooks/melts in the last 15s.
+
+      // Let's create key timestamp events *relative to the end of noodle cooking*
+      let events = []; // Array of { offsetFromEnd: seconds, id: string, label: string }
+
+      if (selectedToppings.ricecake) {
+        // Rice cake is put directly with noodles (at the start: offset = totalNoodleTime)
+        events.push({ offset: totalNoodleTime, type: 'ricecake' });
+      }
+      if (selectedToppings.egg) {
+        const eggOffset = eggStyle === 'soft' ? 90 : 180;
+        events.push({ offset: eggOffset, type: 'egg' });
+      }
+      if (selectedToppings.onion) {
+        events.push({ offset: 60, type: 'onion' });
+      }
+      if (selectedToppings.cheese) {
+        events.push({ offset: 15, type: 'cheese' });
+      }
+
+      // Sort events from start of cooking (highest offset) to end of cooking (lowest offset)
+      events.sort((a, b) => b.offset - a.offset);
+
+      // Construct Segment intervals inside the noodle phase
+      let currentNoodleTimelineMark = totalNoodleTime; // Counts down from total noodle time to 0
+
+      events.forEach(event => {
+        // If there's space between current position and the event, create a plain noodle segment
+        if (currentNoodleTimelineMark > event.offset) {
+          timelineSteps.push({
+            id: `noodle-segment-${currentNoodleTimelineMark}`,
+            actionKey: "action-noodle",
+            descKey: "action-noodle-desc",
+            duration: currentNoodleTimelineMark - event.offset,
+            speakBefore: timelineSteps[timelineSteps.length - 1]?.id !== "soup" // Speak only if transitioned from soup
+          });
+          currentNoodleTimelineMark = event.offset;
+        }
+
+        // Add the specific action segment
+        if (currentNoodleTimelineMark === event.offset && currentNoodleTimelineMark > 0) {
+          let stepDuration = 45; // default step duration chunk
+          // Decide step duration safely to avoid overflowing 0
+          if (event.offset < stepDuration) {
+            stepDuration = event.offset;
+          }
+
+          let actionKey = "";
+          let descKey = "";
+
+          if (event.type === 'ricecake') {
+            actionKey = "action-noodle";
+            descKey = "action-noodle-desc";
+          } else if (event.type === 'egg') {
+            actionKey = eggStyle === 'soft' ? "action-egg-soft" : "action-egg-hard";
+            descKey = eggStyle === 'soft' ? "action-egg-soft-desc" : "action-egg-hard-desc";
+          } else if (event.type === 'onion') {
+            actionKey = "action-onion";
+            descKey = "action-onion-desc";
+          } else if (event.type === 'cheese') {
+            actionKey = "action-finish";
+            descKey = "action-finish-desc";
+          }
+
+          timelineSteps.push({
+            id: `topping-${event.type}-${currentNoodleTimelineMark}`,
+            actionKey: actionKey,
+            descKey: descKey,
+            duration: stepDuration,
+            speakBefore: true
+          });
+
+          currentNoodleTimelineMark -= stepDuration;
+        }
+      });
+
+      // If there is any remaining time left in the noodle phase, add final cook segment
+      if (currentNoodleTimelineMark > 0) {
+        timelineSteps.push({
+          id: `noodle-final`,
+          actionKey: "action-noodle",
+          descKey: "action-noodle-desc",
+          duration: currentNoodleTimelineMark,
+          speakBefore: false
+        });
+      }
+
+      // Add Final Serving Step
+      timelineSteps.push({
+        id: "serve",
+        actionKey: "action-serve",
+        descKey: "action-serve-desc",
+        duration: 0,
+        speakBefore: true
+      });
+
+      // Calculate total duration for progress rendering
+      totalTimelineDuration = timelineSteps.reduce((acc, step) => acc + step.duration, 0);
+
+      // Load initial step
+      currentStepIdx = 0;
+      timerRemaining = timelineSteps[0].duration;
+
+      renderTimelineList();
+      updateTimerDisplay();
+    }
+
+    // Render Progress Timelines in Bottom Drawer
+    function renderTimelineList() {
+      const listContainer = document.getElementById('step-timeline-list');
+      listContainer.innerHTML = '';
+
+      timelineSteps.forEach((step, idx) => {
+        const isCurrent = idx === currentStepIdx;
+        const isCompleted = idx < currentStepIdx;
+        
+        let statusColor = "border-slate-100 bg-slate-50 text-slate-400";
+        if (isCurrent) {
+          statusColor = "border-orange-500 bg-orange-50/50 text-slate-800 font-bold scale-[1.02] shadow-sm";
+        } else if (isCompleted) {
+          statusColor = "border-emerald-200 bg-emerald-50/30 text-emerald-700";
+        }
+
+        const rawActionName = t(step.actionKey);
+        // UI uses emoticons, TTS does not read them
+        let emote = "🔥";
+        if (step.actionKey.includes("soup")) emote = "🧂";
+        if (step.actionKey.includes("noodle")) emote = "🍜";
+        if (step.actionKey.includes("egg")) emote = "🍳";
+        if (step.actionKey.includes("onion")) emote = "🌿";
+        if (step.actionKey.includes("finish")) emote = "🧀";
+        if (step.actionKey.includes("serve")) emote = "✨";
+
+        const div = document.createElement('div');
+        div.className = `p-2.5 border-2 rounded-xl flex items-center justify-between transition-all text-xs ${statusColor}`;
+        div.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="text-sm">${emote}</span>
+            <div>
+              <p class="font-bold">${rawActionName}</p>
+              <p class="text-[10px] text-slate-500 line-clamp-1">${t(step.descKey)}</p>
+            </div>
+          </div>
+          <span class="font-mono text-sm">${formatTime(step.duration)}</span>
+        `;
+        listContainer.appendChild(div);
+      });
+    }
+
+    // Timer Tick Engine
+    function startTimer() {
+      if (isRunning) return;
+      
+      // If completed all steps, restart
+      if (currentStepIdx >= timelineSteps.length - 1) {
+        resetTimer();
+        return;
+      }
+
+      isRunning = true;
+      document.getElementById('btn-start').classList.add('bg-orange-600', 'scale-95');
+
+      // Vocalize current step at the absolute start
+      triggerStepVoice(currentStepIdx);
+
+      timerInterval = setInterval(() => {
+        if (timerRemaining > 0) {
+          timerRemaining--;
+          updateTimerDisplay();
+          updateOverallProgressBar();
+        } else {
+          // Transition to Next Step natively when countdown hits 0
+          clearInterval(timerInterval);
+          isRunning = false;
+          goToNextStep(true); // Auto progress triggers auto-alert
+        }
+      }, 1000);
+    }
+
+    // Pause Engine
+    function pauseTimer() {
+      if (!isRunning) return;
+      clearInterval(timerInterval);
+      isRunning = false;
+      document.getElementById('btn-start').classList.remove('bg-orange-600', 'scale-95');
+    }
+
+    // Reset Engine
+    function resetTimer() {
+      pauseTimer();
+      buildTimeline();
+      updateOverallProgressBar();
+      speak(t("voice-ready"));
+    }
+
+    // Advance Logic
+    function goToNextStep(isAutoTransition) {
+      if (currentStepIdx < timelineSteps.length - 1) {
+        currentStepIdx++;
+        timerRemaining = timelineSteps[currentStepIdx].duration;
+        
+        // PAUSE ENGINE IMMEDIATELY when switching phases
+        // Requirement: "다음단계로 넘어가면 바로 진행되지 않고 시작버튼을 눌러야 진행"
+        pauseTimer();
+        
+        renderTimelineList();
+        updateTimerDisplay();
+        updateOverallProgressBar();
+
+        if (isAutoTransition) {
+          // Speak specific transition warnings
+          if (timelineSteps[currentStepIdx - 1].id === 'boil') {
+            speak(t("voice-boil-finished"));
+          } else {
+            speak(`${t(timelineSteps[currentStepIdx].actionKey)}. ${t("voice-next-guide")}`);
+          }
+        } else {
+          speak(`${t(timelineSteps[currentStepIdx].actionKey)}. ${t("voice-next-guide")}`);
+        }
+      } else {
+        // Reached end of culinary roadmap
+        pauseTimer();
+        speak(t("voice-finished"));
+        updateOverallProgressBar();
+      }
+    }
+
+    // Manual Step Override Trigger
+    function skipToNextStep() {
+      goToNextStep(false);
+    }
+
+    // Format utility
+    function formatTime(secs) {
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    // Update Text Outputs
+    function updateTimerDisplay() {
+      const step = timelineSteps[currentStepIdx];
+      if (!step) return;
+
+      document.getElementById('timer-display').innerText = formatTime(timerRemaining);
+      document.getElementById('current-step-label').innerText = t(step.actionKey);
+      
+      const nextStep = timelineSteps[currentStepIdx + 1];
+      document.getElementById('next-action-tip').innerText = nextStep ? `Next: ${t(nextStep.actionKey)}` : t("action-serve");
+
+      // Dynamic wave scale height simulation based on timer left
+      const bgProgress = document.getElementById('visual-progress-bg');
+      if (step.duration > 0) {
+        const percent = (timerRemaining / step.duration) * 100;
+        bgProgress.style.height = `${percent}%`;
+      } else {
+        bgProgress.style.height = `0%`;
+      }
+    }
+
+    // Global Progress bar
+    function updateOverallProgressBar() {
+      let completedSecs = 0;
+      for (let i = 0; i < currentStepIdx; i++) {
+        completedSecs += timelineSteps[i].duration;
+      }
+      const activeStep = timelineSteps[currentStepIdx];
+      if (activeStep) {
+        completedSecs += (activeStep.duration - timerRemaining);
+      }
+
+      const percent = totalTimelineDuration > 0 ? Math.round((completedSecs / totalTimelineDuration) * 100) : 0;
+      document.getElementById('progress-percent').innerText = `${percent}%`;
+      document.getElementById('overall-progress-bar').style.width = `${percent}%`;
+    }
+
+    // Voice announcement system
+    function triggerStepVoice(idx) {
+      const step = timelineSteps[idx];
+      if (step && step.speakBefore) {
+        const speechText = `${t(step.actionKey)}. ${t(step.descKey)}`;
+        speak(speechText);
+      }
+    }
+
+    // Clean voice synthesiser without reading emojis
+    function speak(text) {
+      if (!text) return;
+      
+      // Strip emoticons/emojis with regex
+      const cleanText = text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F1E0}-\u{1F1FF}]/gu, '');
+      
+      // Match correct voice localisations
+      const voiceLangs = {
+        ko: 'ko-KR',
+        en: 'en-US',
+        ja: 'ja-JP',
+        zh: 'zh-CN',
+        es: 'es-ES',
+        de: 'de-DE',
+        vi: 'vi-VN'
+      };
+
+      if ('speechSynthesis' in window) {
+        // Cancel ongoing voices immediately to prevent overlap
+        window.speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = voiceLangs[currentLang] || 'ko-KR';
+        utterance.rate = 1.0;
+
+        // Visual Audio Indicator popup
+        const indicator = document.getElementById('tts-indicator');
+        const indicatorText = document.getElementById('tts-text-indicator');
+        
+        utterance.onstart = () => {
+          indicatorText.innerText = cleanText;
+          indicator.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+        };
+
+        utterance.onend = () => {
+          indicator.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+        };
+
+        utterance.onerror = () => {
+          indicator.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+        };
+
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    // Dynamic translations lookups
+    function t(key) {
+      return translations[currentLang]?.[key] || translations['en']?.[key] || key;
+    }
+
+    // Change Language Pipeline
+    function changeLanguage(lang) {
+      currentLang = lang;
+      
+      // Update DOM tags containing standard translations
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.innerText = t(key);
+      });
+
+      // Update static header content
+      document.getElementById('header-title').innerText = t("header-title");
+      document.getElementById('header-subtitle').innerText = t("header-subtitle");
+
+      // Reload Ramen Selections and detail cards
+      translateDynamicRamenLabels();
+      updateRecipeCard();
+      
+      // Refresh timeline labels dynamically without resetting progress if active
+      updateTimerDisplay();
+      renderTimelineList();
+    }
+
+    // Dynamic ramen elements translator helper
+    function translateDynamicRamenLabels() {
+      Object.values(ramenDatabase).forEach(ramen => {
+        const badgeEl = document.getElementById(`ramen-badge-${ramen.id}`);
+        const nameEl = document.getElementById(`ramen-name-${ramen.id}`);
+        const descEl = document.getElementById(`ramen-desc-${ramen.id}`);
+
+        if (badgeEl) badgeEl.innerText = ramen.id === 'buldak' ? 'BI-BIM' : 'SOUP';
+        if (nameEl) nameEl.innerText = t(`${ramen.id}-ramen`);
+        if (descEl) descEl.innerText = t(ramen.descKey);
+      });
+    }
+  </script>
+</body>
+</html>
